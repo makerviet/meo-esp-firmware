@@ -4,25 +4,32 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>
 #include <ESP8266mDNS.h>
+#include <ArduinoJson.h>
 #include <DNSServer.h>
 #include "DHT.h"
 
-// =========== CHANGE SETTINGS BELOW =================
-
+//const char* ssid = "214 beauty";
+//const char* password = "quenmatroithatma";
+//const char* mqtt_server = "192.168.1.61";
+//const char* ssid = "Phongtruc_KTXB2";
+//const char* password = "1234!4321";
+//const char* ssid = "Ktdt-lab";
+//const char* password = "Ktdt-lab";
+//const char* mqtt_server = "192.168.0.103";
+//const char* ssid = "NhaXe_KTXB2";
+//const char* password = "@111$111@";
+//const char* mqtt_server = "192.168.1.61";
 const char* ssid = "MakerHanoi-1-1";
 const char* password = "makerhanoi@12345611";
-const char* mqtt_server = "192.168.9.100";
+//const char* mqtt_server = "192.168.11.210";
+
 const char* device_id = "NodeMcuEsp01";  // uuid
-
-// ===================================================
-
-
 const char* channel_in_postfix = "/in";
 const char* channel_out_postfix = "/out";
 String channel_in = "esp/", channel_out = "esp/";
 
 // Initialize DHT sensor
-const int DHTPIN = D5;       //Đọc dữ liệu từ DHT11 ở chân A0 trên ESP
+const int DHTPIN = 14;       //Đọc dữ liệu từ DHT11 ở chân A0 trên ESP
 const int DHTTYPE = DHT11;  //Khai báo loại cảm biến, có 2 loại là DHT11 và DHT22
 DHT dht(DHTPIN, DHTTYPE); // 11 works fine for ESP8266
 
@@ -32,14 +39,14 @@ unsigned long previousMillis = 0;        // will store last temp was read
 const long cnt_sensor = 2000;              // interval at which to read sensor - See more at: http://www.esp8266.com/viewtopic.php?f=29&t=8746#sthash.IJ0JNSIx.dpuf
 unsigned long preTimer = 0;
 const long interval = 5000;             // interval to publish data each time.
+
 WiFiClient espClient;
 PubSubClient client(espClient);
-/*
 char hostString[16] = {0};
 char IP_Server_char[20];
 int Port_Server;
 IPAddress ip;
-*/
+
 
 void callback(char* topic, byte* payload, unsigned int length) {
   payload[length] = '\0'; // Null terminator used to terminate the char array
@@ -47,8 +54,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  for (int i = 0; i < length; i++) {  // print message converted from byte to char
+    Serial.print((char)payload[i]);
+  }
 
-  
   int A[10][2];
   int index1 = 0, index2 = 0;
   int temp = 0;
@@ -56,7 +65,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++)
   {
     char c = payload[i];
-    if (c >= '0' && c <= '9'){
+    if (c >= '0' && c <= '9') {
       temp = temp * 10 + (c - '0');
     }
     else if (c == '.') {
@@ -71,7 +80,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         A[index1][0] = -1;
         A[index1][1] = -1;
       }
-      else 
+      else
       {
         A[index1][index2] = temp;
 
@@ -90,6 +99,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     A[index1][index2] = temp;
   }
 
+
   for (int i = 0; i < 10 ; i++)
   {
     if (A[i][0] == 0)
@@ -100,7 +110,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
           if (A[i][1] == 0)
             digitalWrite(D0, LOW);
           else
-            digitalWrite(D0, HIGH); 
+            digitalWrite(D0, HIGH);
           break;
         case 1:
           if (A[i][1] == 0)
@@ -116,7 +126,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
           if (A[i][1] == 0)
             digitalWrite(D3, LOW);
           else
-            digitalWrite(D3, HIGH); break;
+          digitalWrite(D3, HIGH); break;
         case 4:
           if (A[i][1] == 0)
             digitalWrite(D4, LOW);
@@ -124,7 +134,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
             digitalWrite(D4, HIGH); break;
       }
     }
-    else if(A[i][0] == 1)
+    else if(A[i][0]== 1)
     {
       switch (i)
       {
@@ -138,14 +148,27 @@ void callback(char* topic, byte* payload, unsigned int length) {
         case 7: Function_F3();
         case 8: Function_F4();
         case 9: Function_F5();
+        
       }
     }
   }
 
 }
 
-//////////////////////////////READ DATA and PUBLISH////////////////////////
 
+  /*
+    Serial.println(message);
+    //  if((char)payload[0] == 'o' && (char)payload[1] == 'n') //on
+    if(!message.indexOf("on"))
+      digitalWrite(D4,LOW);
+    //  else if((char)payload[0] == 'o' && (char)payload[1] == 'f' && (char)payload[2] == 'f') //off
+     else if(!message.indexOf("off"))
+      digitalWrite(D4,HIGH);
+  */
+
+
+
+//////////////////////////////PUB/////////////////
 void send_data() {
   int D5 = digitalRead(D5);
   int D6 = digitalRead(D5);
@@ -221,8 +244,7 @@ void gettemperature() {
 }
 
 
-//////////////////////// VIRTUAL OUTPUT//////////////////
-
+//////////////////////// Virtual output//////////////////
 inline unsigned char Virtual_U1() {
   gettemperature();
   return temp_c;
@@ -245,10 +267,10 @@ inline unsigned char Virtual_U5() {
   return 1;
 }
 
-/////////////////////////////// FUCNTION INTPUT/////////////////////
-
+/////////////////////////////// Function input/////////////////////
 inline void Function_F1() {
-  Serial.println("F1");
+//  Serial.println("F1");
+    
 }
 
 inline void Function_F2() {
@@ -266,21 +288,9 @@ inline void Function_F5() {
   Serial.println("F5");
 }
 
-/////////////////////////////////// SET UP ///////////////////////////////////
-
+/*====================Set úp============================*/
 void setup() {
-  pinMode(D0, OUTPUT);    // Initialize the BUILTIN_LED pin as an output
-  pinMode(D1, OUTPUT);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-
-  pinMode(A0, INPUT);
-  pinMode(D5, INPUT);
-  pinMode(D6, INPUT);
-  pinMode(D7, INPUT);
-  pinMode(D8, INPUT);
-  
+  pinMode(D4, OUTPUT);    // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
   WiFiManager wifiManager;
   //wifiManager.resetSettings();
@@ -294,7 +304,6 @@ void setup() {
   Serial.println("local ip");
   Serial.println(WiFi.localIP());
   // setup_wifi();
-  /*
   Serial.println("\r\nsetup()");
   sprintf(hostString, "ESP_%06X", ESP.getChipId());
   Serial.print("Hostname: ");
@@ -329,8 +338,6 @@ void setup() {
     //  IPAddress ip = MDNS.IP(0);
     //Serial.println(".............");
     //Serial.println(ip);
-
-*/
     channel_in += device_id;          // "esp/NodeMcuEsp01"
     channel_in += channel_in_postfix; // "esp/NodeMcuEsp01/in"
     Serial.println("Subscribe channel: ");
@@ -340,9 +347,7 @@ void setup() {
     channel_out += channel_out_postfix; // "esp/NodeMcuEsp01/out"
     Serial.println("Channel out: ");
     Serial.println(channel_out);
-
-/*
-  
+  }
   ///////////////// Get IP Adress and Port Adress/////////////
   IPAddress ip = MDNS.IP(0); // Get IPAddress of Server
   String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]); // convert IP Adress to String
@@ -350,8 +355,8 @@ void setup() {
   Serial.println(IP_Server_char);
   Port_Server = MDNS.port(0);
   Serial.println(Port_Server);
-  //  client.setServer(IP_Server_char, Port_Server);*/
-  client.setServer(mqtt_server, 1883);
+  client.setServer(IP_Server_char, Port_Server);
+  //client.setServer("192.168.10.154", 1883);
   Serial.println();
 
   Serial.println("loop() next");
