@@ -8,11 +8,14 @@
 
 // ======= Thay đổi các thông tin ở đây =========
 
-const char* mqtt_server = "server.tobernguyen.com";
+const char* default_mqtt_server = "server.tobernguyen.com";
+const char* default_mqtt_port = "1883";
 const char* device_id = "meo2";
 
 // ==============================================
 
+char mqtt_server[255];
+char mqtt_port[6];
 const char* channel_in_postfix = "/in";
 const char* channel_out_postfix = "/out";
 String channel_in = "esp/", channel_out = "esp/";
@@ -285,13 +288,23 @@ void setup() {
   pinMode(A0, INPUT);
   Serial.begin(115200);
   WiFiManager wifiManager;
-//  wifiManager.resetSettings();
+  WiFiManagerParameter custom_text("<br/><p>Enter MQTT Server/IP and Port Number</p>");
+  WiFiManagerParameter custom_mqtt_server("server", "mqtt server", default_mqtt_server, 255);
+  WiFiManagerParameter custom_mqtt_port("server", "mqtt port", default_mqtt_port, 6);
+  wifiManager.addParameter(&custom_text);
+  wifiManager.addParameter(&custom_mqtt_server);
+  wifiManager.addParameter(&custom_mqtt_port);
+  wifiManager.resetSettings();
   if (!wifiManager.autoConnect(hotspot_name_prefix.c_str())) {
     Serial.println("failed to connect, we should reset as see if it connects");
     delay(3000);
     ESP.reset();
     delay(5000);
   }
+
+  strcpy(mqtt_server, custom_mqtt_server.getValue());
+  strcpy(mqtt_port, custom_mqtt_port.getValue());
+  
   Serial.println("connected...yeey :)");
   Serial.println("local ip");
   Serial.println(WiFi.localIP());
@@ -342,7 +355,7 @@ void setup() {
   */
   // ========================================================
   
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, atol(mqtt_port));
   Serial.println();
 
   channel_in += device_id;          // "esp/NodeMcuEsp01"
