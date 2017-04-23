@@ -164,18 +164,16 @@ void send_data() {
   int U4 = Virtual_U4();
   int U5 = Virtual_U5();
   String pubString = String(D5) + ';' + String(D6) + ';' + String(D7) + ';' + String(D8) + ';' + String(A0) + ';' + String(U1) + ';' + String(U2) + ';' + String(U3) + ';' + String(U4) + ';' + String(U5) ;
-  char pubChar[50];
-  pubString.toCharArray(pubChar, 50);
-
+  
   unsigned long curTimer = millis();
   if (curTimer - preTimer >= interval)  // set time cycle to publish data: each 5s
   {
     preTimer = curTimer;
-    client.publish(channel_out.c_str(), pubChar);
+    client.publish(channel_out.c_str(), pubString.c_str());
     Serial.print("Message published [");
     Serial.print(channel_out);
     Serial.print("]: ");
-    Serial.println(pubChar);
+    Serial.println(pubString);
   }
 
 }
