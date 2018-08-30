@@ -1,4 +1,6 @@
 // MEO cho esp 32
+// Các thư viện có số 2 ở cuối đều là các thư viện đã chỉnh sửa để chạy được trên esp32, em đã đổi tên thư viện để tránh gây conflict
+// nguồn libary : https://github.com/zhouhan0126/WIFIMANAGER-ESP32 
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WebServer2.h>
