@@ -1,3 +1,4 @@
+// MEO cho esp 32
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WebServer2.h>
@@ -399,7 +400,7 @@ void loop() {
   send_data();
 }
 
-void hard_restart() {
+void hard_restart() { // hàm reset cho esp 32
   esp_task_wdt_init(1,true);
   esp_task_wdt_add(NULL);
   while(true);
